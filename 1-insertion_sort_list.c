@@ -1,6 +1,30 @@
 #include "sort.h"
 
 /**
+ * swap_nodes - Swaps two adjacent nodes in a doubly linked list
+ * @list: Double pointer to the head of the list
+ * @node1: First node (should be before node2)
+ * @node2: Second node (should be after node1)
+ */
+
+void swap_nodes(listint_t **list, listint_t *node1, listint_t *node2)
+
+{
+	if (node1->prev)
+		node1->prev->next = node2;
+	else
+		*list = node2;
+
+	if (node2->next)
+		node2->next->prev = node1;
+
+	node1->next = node2->next;
+	node2->prev = node1->prev;
+	node1->prev = node2;
+	node2->next = node1;
+}
+
+/**
  * insertion_sort_list - Sorts a doubly linked list of integers
  * in ascending order using Insertion sort
  * @list: Double pointer to the head of the list
@@ -9,7 +33,7 @@
 void insertion_sort_list(listint_t **list)
 
 {
-	listint_t *current, *next_node, *insert_pos;
+	listint_t *current, *next_node, *temp;
 
 	if (list == NULL || *list == NULL || (*list)->next == NULL)
 		return;
@@ -19,48 +43,16 @@ void insertion_sort_list(listint_t **list)
 	while (current != NULL)
 	{
 		next_node = current->next;
-		insert_pos = current->prev;
+		temp = current;
 
-		/* Find the correct position to insert current node */
-		while (insert_pos != NULL && insert_pos->n > current->n)
+		/* Move the current node backwards until it's in the right position */
+		while (temp->prev != NULL && temp->prev->n > temp->n)
 		{
-			insert_pos = insert_pos->prev;
+			swap_nodes(list, temp->prev, temp);
+			print_list(*list);
 		}
-
-		/* If current is already in correct position */
-		if (insert_pos == current->prev)
-		{
-			current = next_node;
-			continue;
-		}
-
-		/* Remove current from its current position */
-		if (current->next != NULL)
-			current->next->prev = current->prev;
-		current->prev->next = current->next;
-
-		/* Insert current after insert_pos */
-		if (insert_pos == NULL)
-		{
-			/* Insert at the beginning */
-			current->prev = NULL;
-			current->next = *list;
-			(*list)->prev = current;
-			*list = current;
-		}
-		else
-		{
-			/* Insert after insert_pos */
-			current->prev = insert_pos;
-			current->next = insert_pos->next;
-			if (insert_pos->next != NULL)
-				insert_pos->next->prev = current;
-			insert_pos->next = current;
-		}
-
-		/* Print the list after each swap */
-		print_list(*list);
 
 		current = next_node;
 	}
 }
+
